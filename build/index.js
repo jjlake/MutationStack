@@ -46,6 +46,7 @@ class InputHandler {
         this.tracker.elem.addEventListener('keydown', this.handleKeyPress);
         this.tracker.elem.addEventListener('keyup', this.handleKeyUp);
     }
+    // Handle control-y redo and control-z undo actions.
     handleCtrlCombo(event) {
         switch (event.code) {
             case 'KeyY':

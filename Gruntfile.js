@@ -27,23 +27,23 @@ module.exports = function (grunt) {
         }
       }
     },
-    //// Optional, build demo for remote deployment on github pages.
-    // buildcontrol: {
-    //   options: {
-    //     dir: 'build',
-    //     commit: true,
-    //     push: true,
-    //     connectCommits: false,
-    //     message: 'Built live demo from commit %sourceCommit%'
-    //   },
-    //   demo: {
-    //     options: {
-    //       // Update the remote to point to your github repo
-    //       remote: 'git@github.com:fiznool/super-awesome.git',
-    //       branch: 'gh-pages',
-    //     }
-    //   }
-    // },
+    // Optional, build demo for remote deployment on github pages.
+    buildcontrol: {
+      options: {
+        dir: 'build',
+        commit: true,
+        push: true,
+        connectCommits: false,
+        message: 'Built live demo from commit %sourceCommit%'
+      },
+      demo: {
+        options: {
+          // Update the remote to point to your github repo
+          remote: 'git@github.com:jjlake/MutationStack.git',
+          branch: 'gh-pages',
+        }
+      }
+    },
     connect: {
       dev: {
         options: {
