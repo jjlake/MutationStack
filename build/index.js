@@ -23,6 +23,49 @@ document.getElementById("undoBtn").addEventListener("click", undo);
 },{"mutationstack":"diffex"}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.InputHandler = void 0;
+class InputHandler {
+    constructor(tracker) {
+        this.handleKeyPress = (event) => {
+            if (InputHandler.ctrlPressed) {
+                this.handleCtrlCombo(event);
+            }
+            else if (event.ctrlKey) {
+                InputHandler.ctrlPressed = true;
+            }
+        };
+        this.handleKeyUp = (event) => {
+            if (event.key == "Control")
+                InputHandler.ctrlPressed = false;
+        };
+        this.tracker = tracker;
+        this.addListeners();
+    }
+    // Element input handlers.
+    addListeners() {
+        this.tracker.elem.addEventListener('keydown', this.handleKeyPress);
+        this.tracker.elem.addEventListener('keyup', this.handleKeyUp);
+    }
+    handleCtrlCombo(event) {
+        switch (event.code) {
+            case 'KeyY':
+                event.preventDefault();
+                this.tracker.redo();
+                break;
+            case 'KeyZ':
+                event.preventDefault();
+                this.tracker.undo();
+                break;
+        }
+    }
+}
+exports.InputHandler = InputHandler;
+InputHandler.ctrlPressed = false;
+exports.default = InputHandler;
+
+},{}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.MutationStack = void 0;
 const MutationStackRecord_1 = require("./MutationStackRecord");
 class MutationStack {
@@ -56,7 +99,7 @@ class MutationStack {
 exports.MutationStack = MutationStack;
 exports.default = MutationStack;
 
-},{"./MutationStackRecord":3}],3:[function(require,module,exports){
+},{"./MutationStackRecord":4}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.reverse = void 0;
@@ -112,6 +155,7 @@ function reverse(record) {
                 }
             }
             break;
+        // Reverse a text content changed recorded in a mutation record.
         case "characterData":
             if (record.target instanceof CharacterData) {
                 if (record.oldValue == null)
@@ -127,7 +171,7 @@ function reverse(record) {
 }
 exports.reverse = reverse;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -138,8 +182,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MutationTracker = exports.waitForMutation = void 0;
+const InputHandler_1 = __importDefault(require("./InputHandler"));
 const MutationStack_1 = require("./MutationStack");
 const config = {
     attributes: true,
@@ -180,6 +228,7 @@ class MutationTracker {
         this.reverseIt = this.reverseIt.bind(this);
         this.undo = this.undo.bind(this);
         this.redo = this.redo.bind(this);
+        this.inputHandler = new InputHandler_1.default(this);
     }
     // Start observing for changes via mutation observer API.
     start() {
@@ -223,7 +272,7 @@ class MutationTracker {
 exports.MutationTracker = MutationTracker;
 exports.default = MutationTracker;
 
-},{"./MutationStack":2}],"diffex":[function(require,module,exports){
+},{"./InputHandler":2,"./MutationStack":3}],"diffex":[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -242,4 +291,4 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./MutationTracker"), exports);
 
-},{"./MutationTracker":4}]},{},[1]);
+},{"./MutationTracker":5}]},{},[1]);

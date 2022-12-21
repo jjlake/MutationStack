@@ -1,5 +1,5 @@
+import InputHandler from "./InputHandler";
 import { MutationStack } from "./MutationStack";
-import { reverse } from "./MutationStackRecord";
 
 const config = {
     attributes: true,
@@ -32,6 +32,7 @@ export class MutationTracker{
     observer: MutationObserver;
     redoStack: MutationStack = new MutationStack();
     undoStack: MutationStack = new MutationStack();
+    inputHandler: InputHandler;
 
     constructor(elem: HTMLElement){
         this.elem = elem;
@@ -42,6 +43,8 @@ export class MutationTracker{
         this.reverseIt = this.reverseIt.bind(this);
         this.undo = this.undo.bind(this);
         this.redo = this.redo.bind(this);
+
+        this.inputHandler = new InputHandler(this);
     }
 
     // Start observing for changes via mutation observer API.

@@ -51,6 +51,7 @@ export function reverse(record: MutationRecord){
             }
             break;
 
+        // Reverse a text content changed recorded in a mutation record.
         case "characterData":
             if(record.target instanceof CharacterData){
                 if(record.oldValue == null)
