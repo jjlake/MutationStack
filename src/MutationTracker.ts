@@ -10,6 +10,8 @@ const config = {
     characterDataOldValue: true
 };
 
+/* Asynchronous function that listens for mutations via the MutationObserver API
+   then stops and returns the list of mutations when the callback is first invoked. */
 export async function waitForMutation(targetNode: HTMLElement){
     if(targetNode==null){
         throw new Error("Node does not exist!")
@@ -23,6 +25,8 @@ export async function waitForMutation(targetNode: HTMLElement){
     return mutationList;
 }
 
+/* This class is attached to an element to maintain a record of all changes
+   via undo and redo stacks. */
 export class MutationTracker{
     elem: HTMLElement; // Element upon which to track and undo/redo changes.
     observer: MutationObserver;
@@ -40,14 +44,17 @@ export class MutationTracker{
         this.redo = this.redo.bind(this);
     }
 
+    // Start observing for changes via mutation observer API.
     start(){
         this.observer.observe(this.elem, config);
     }
 
+    // Stop observing for changes via mutation observer API.
     stop(){
         this.observer.disconnect();
     }
 
+    // Reverse a change passed from the undo or redo stacks.
     async reverseIt(undo: boolean){
         this.stop(); // Stop tracking fresh mutations while redoing.
 
@@ -55,12 +62,15 @@ export class MutationTracker{
             resolve(waitForMutation(this.elem));
             undo ? this.undoStack.pop() : this.redoStack.pop();
         }).then(mutationList =>{
+            /* Add the last undone change to the redo stack 
+               or the last redone change to the undo stack. */
             (undo ? this.redoStack : this.undoStack).push(mutationList as MutationRecord[]);
         });
         
         this.start();
     };
 
+    // Pop and reverse the last change from the redo stack.
     redo(){
         if(this.redoStack.length()>0)
             this.reverseIt(false);
@@ -68,6 +78,7 @@ export class MutationTracker{
             throw new Error("Nothing to redo.");
     }
     
+    // Pop and reverse the last change from the undo stack.
     undo(){
         if(this.undoStack.length()>0)
             this.reverseIt(true);

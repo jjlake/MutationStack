@@ -1,3 +1,4 @@
+// A helper function to insert a node after an existing node.
 function insertAfter(newNode: Node, existingNode: Node){
     if(existingNode.parentNode)
         existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
@@ -7,6 +8,7 @@ function insertAfter(newNode: Node, existingNode: Node){
 
 export function reverse(record: MutationRecord){
     switch(record.type){
+        // Reverse an attribute change recorded in a MutationRecord object.
         case "attributes":
             if(record.target instanceof HTMLElement){
                 if(record.attributeName == null)
@@ -19,6 +21,7 @@ export function reverse(record: MutationRecord){
                 throw new Error("Invalid operation: target node is not a HTML element.");
             break;
 
+        // Reverse a childList (DOM tree) change recorded in a MutationRecord object.
         case "childList":
             var addedNodes = record.addedNodes;
             addedNodes.forEach(node => {
@@ -27,12 +30,16 @@ export function reverse(record: MutationRecord){
             var removedNodes = record.removedNodes;
             var previousSibling = record.previousSibling;
             var nextSibling = record.nextSibling;
+            // If sibling after then just use built-in insertBefore DOM 
+            // modification function.
             if(nextSibling){
                 for(var i=removedNodes.length-1; i>=0; i--){
                     record.target.insertBefore(removedNodes[i], nextSibling);
                     nextSibling = removedNodes[i];
                 }
-            } else if(previousSibling){
+            } // Otherwise, child will have to be added after via helper function
+              // or, failing that. as a child of the parent node.
+            else if(previousSibling){
                 for(var i=0; i<removedNodes.length; i++){
                     insertAfter(removedNodes[i], previousSibling);
                     previousSibling = removedNodes[i];
