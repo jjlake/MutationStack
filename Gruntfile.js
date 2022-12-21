@@ -70,6 +70,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.registerTask('build', ['clean', 'copy', 'browserify']);
   grunt.registerTask('serve', ['build', 'connect', 'watch']);
-  // grunt.registerTask('deploy', ['build', 'buildcontrol']); // for remote deployment ONLY
+  grunt.registerTask('deploy', ['build', 'buildcontrol']); // for remote deployment ONLY
   grunt.registerTask('default', ['serve']);
 };
