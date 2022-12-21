@@ -8,6 +8,7 @@ export class MutationStack{
     }
 
     push(mutationList: Array<MutationRecord>){
+        console.log(mutationList);
         var mutationStackRecords = new Array<MutationRecord>();
         mutationList.forEach(mutationRecord => {
             mutationStackRecords.push(mutationRecord);
@@ -18,11 +19,15 @@ export class MutationStack{
     pop(): Array<MutationRecord>{
         var record = this.stack.pop();
         if(record){
-            record.forEach(mutation => reverse(mutation));
+            record.reverse().forEach(mutation => reverse(mutation));
             return record;
         } else
-            throw new Error("Error: action to undo is undefined.");
+            throw new Error("Action to undo is undefined.");
 
+    }
+
+    length(){
+        return this.stack.length;
     }
 }
 

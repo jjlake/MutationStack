@@ -6,7 +6,6 @@ function insertAfter(newNode: Node, existingNode: Node){
 }
 
 export function reverse(record: MutationRecord){
-    console.log(record)
     switch(record.type){
         case "attributes":
             if(record.target instanceof HTMLElement){
@@ -24,7 +23,6 @@ export function reverse(record: MutationRecord){
             var addedNodes = record.addedNodes;
             addedNodes.forEach(node => {
                 record.target.removeChild(node);
-                // node.remove();
             })
             var removedNodes = record.removedNodes;
             var previousSibling = record.previousSibling;
@@ -37,7 +35,6 @@ export function reverse(record: MutationRecord){
             } else if(previousSibling){
                 for(var i=0; i<removedNodes.length; i++){
                     insertAfter(removedNodes[i], previousSibling);
-                    // previousSibling.after(removedNodes[i]);
                     previousSibling = removedNodes[i];
                 }
             } else {
@@ -51,9 +48,11 @@ export function reverse(record: MutationRecord){
             if(record.target instanceof CharacterData){
                 if(record.oldValue == null)
                     throw new Error("Invalid operation: Updated attribute value is null.")
-                else
+                else {
                     record.target.data = record.oldValue;
-            } else
+                }
+            } else {
                 throw new Error("Invalid operation: target node is not a HTML element.");
+            }
     }
 }

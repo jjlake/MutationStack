@@ -35,6 +35,9 @@ export class MutationTracker{
             this.redoStack.clear();
             this.undoStack.push(mutationList);
         });
+        this.reverseIt = this.reverseIt.bind(this);
+        this.undo = this.undo.bind(this);
+        this.redo = this.redo.bind(this);
     }
 
     start(){
@@ -45,24 +48,32 @@ export class MutationTracker{
         this.observer.disconnect();
     }
 
-    async reverse(undo: boolean){
+    async reverseIt(undo: boolean){
         this.stop(); // Stop tracking fresh mutations while redoing.
+
         await new Promise((resolve) => {
             resolve(waitForMutation(this.elem));
-            var records = (undo ? this.undoStack.pop() : this.redoStack.pop());
-            records.reverse().forEach( record => {
-                reverse(record);
-            })
-        }).then( record => {
-            (undo ? this.redoStack : this.undoStack).push(record as Array<MutationRecord>);
-        })
+            undo ? this.undoStack.pop() : this.redoStack.pop();
+        }).then(mutationList =>{
+            (undo ? this.redoStack : this.undoStack).push(mutationList as MutationRecord[]);
+        });
+        
         this.start();
+    };
+
+    redo(){
+        if(this.redoStack.length()>0)
+            this.reverseIt(false);
+        else
+            throw new Error("Nothing to redo.");
     }
-
-    redo(){ this.reverse(false) }
     
-    undo(){ this.reverse(true) }
-
+    undo(){
+        if(this.undoStack.length()>0)
+            this.reverseIt(true);
+        else
+            throw new Error("Nothing to undo.");
+    }
 }
 
 export default MutationTracker;
