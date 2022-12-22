@@ -35,7 +35,6 @@ export class MutationTracker{
     
     // Element input handlers.
     addListeners(){
-        console.log("TEST")
         this.elem.addEventListener('keydown', this.handleKeyPress)
         this.elem.addEventListener('keyup', handleKeyUp)
     }
