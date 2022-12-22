@@ -23,50 +23,6 @@ document.getElementById("undoBtn").addEventListener("click", undo);
 },{"mutationstack":"diffex"}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.InputHandler = void 0;
-class InputHandler {
-    constructor(tracker) {
-        this.handleKeyPress = (event) => {
-            if (InputHandler.ctrlPressed) {
-                this.handleCtrlCombo(event);
-            }
-            else if (event.ctrlKey) {
-                InputHandler.ctrlPressed = true;
-            }
-        };
-        this.handleKeyUp = (event) => {
-            if (event.key == "Control")
-                InputHandler.ctrlPressed = false;
-        };
-        this.tracker = tracker;
-        this.addListeners();
-    }
-    // Element input handlers.
-    addListeners() {
-        this.tracker.elem.addEventListener('keydown', this.handleKeyPress);
-        this.tracker.elem.addEventListener('keyup', this.handleKeyUp);
-    }
-    // Handle control-y redo and control-z undo actions.
-    handleCtrlCombo(event) {
-        switch (event.code) {
-            case 'KeyY':
-                event.preventDefault();
-                this.tracker.redo();
-                break;
-            case 'KeyZ':
-                event.preventDefault();
-                this.tracker.undo();
-                break;
-        }
-    }
-}
-exports.InputHandler = InputHandler;
-InputHandler.ctrlPressed = false;
-exports.default = InputHandler;
-
-},{}],3:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.MutationStack = void 0;
 const MutationStackRecord_1 = require("./MutationStackRecord");
 class MutationStack {
@@ -77,7 +33,6 @@ class MutationStack {
         this.stack = [];
     }
     push(mutationList) {
-        console.log(mutationList);
         var mutationStackRecords = new Array();
         mutationList.forEach(mutationRecord => {
             mutationStackRecords.push(mutationRecord);
@@ -100,7 +55,7 @@ class MutationStack {
 exports.MutationStack = MutationStack;
 exports.default = MutationStack;
 
-},{"./MutationStackRecord":4}],4:[function(require,module,exports){
+},{"./MutationStackRecord":3}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.reverse = void 0;
@@ -172,7 +127,7 @@ function reverse(record) {
 }
 exports.reverse = reverse;
 
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -183,12 +138,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MutationTracker = exports.waitForMutation = void 0;
-const InputHandler_1 = __importDefault(require("./InputHandler"));
+const input_1 = require("./input");
 const MutationStack_1 = require("./MutationStack");
 const config = {
     attributes: true,
@@ -218,6 +170,12 @@ exports.waitForMutation = waitForMutation;
 /* This class is attached to an element to maintain a record of all changes
    via undo and redo stacks. */
 class MutationTracker {
+    // Element input handlers.
+    addListeners() {
+        console.log("TEST");
+        this.elem.addEventListener('keydown', this.handleKeyPress);
+        this.elem.addEventListener('keyup', input_1.handleKeyUp);
+    }
     constructor(elem) {
         this.redoStack = new MutationStack_1.MutationStack();
         this.undoStack = new MutationStack_1.MutationStack();
@@ -226,10 +184,13 @@ class MutationTracker {
             this.redoStack.clear();
             this.undoStack.push(mutationList);
         });
-        this.reverseIt = this.reverseIt.bind(this);
+        this.reverse = this.reverse.bind(this);
         this.undo = this.undo.bind(this);
         this.redo = this.redo.bind(this);
-        this.inputHandler = new InputHandler_1.default(this);
+        this.addListeners = this.addListeners.bind(this);
+        this.handleCtrlCombo = this.handleCtrlCombo.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+        this.addListeners();
     }
     // Start observing for changes via mutation observer API.
     start() {
@@ -240,7 +201,7 @@ class MutationTracker {
         this.observer.disconnect();
     }
     // Reverse a change passed from the undo or redo stacks.
-    reverseIt(undo) {
+    reverse(undo) {
         return __awaiter(this, void 0, void 0, function* () {
             this.stop(); // Stop tracking fresh mutations while redoing.
             yield new Promise((resolve) => {
@@ -258,22 +219,59 @@ class MutationTracker {
     // Pop and reverse the last change from the redo stack.
     redo() {
         if (this.redoStack.length() > 0)
-            this.reverseIt(false);
+            this.reverse(false);
         else
             throw new Error("Nothing to redo.");
     }
     // Pop and reverse the last change from the undo stack.
     undo() {
         if (this.undoStack.length() > 0)
-            this.reverseIt(true);
+            this.reverse(true);
         else
             throw new Error("Nothing to undo.");
+    }
+    // Handle control-y redo and control-z undo actions.
+    handleCtrlCombo(event) {
+        switch (event.code) {
+            case 'KeyY':
+                event.preventDefault();
+                this.redo();
+                break;
+            case 'KeyZ':
+                event.preventDefault();
+                this.undo();
+                break;
+        }
+    }
+    ;
+    handleKeyPress(event) {
+        if (input_1.ctrlPressed) {
+            this.handleCtrlCombo(event);
+        }
+        else if (event.ctrlKey) {
+            (0, input_1.setCtrlPressed)(true);
+        }
     }
 }
 exports.MutationTracker = MutationTracker;
 exports.default = MutationTracker;
 
-},{"./InputHandler":2,"./MutationStack":3}],"diffex":[function(require,module,exports){
+},{"./MutationStack":2,"./input":5}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.handleKeyUp = exports.setCtrlPressed = exports.ctrlPressed = void 0;
+exports.ctrlPressed = false;
+function setCtrlPressed(pressed) {
+    exports.ctrlPressed = pressed;
+}
+exports.setCtrlPressed = setCtrlPressed;
+const handleKeyUp = (event) => {
+    if (event.key == "Control")
+        exports.ctrlPressed = false;
+};
+exports.handleKeyUp = handleKeyUp;
+
+},{}],"diffex":[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -292,4 +290,4 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./MutationTracker"), exports);
 
-},{"./MutationTracker":5}]},{},[1]);
+},{"./MutationTracker":4}]},{},[1]);

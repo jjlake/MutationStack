@@ -68,6 +68,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-build-control');
   grunt.registerTask('build', ['clean', 'copy', 'browserify']);
   grunt.registerTask('serve', ['build', 'connect', 'watch']);
   grunt.registerTask('deploy', ['build', 'buildcontrol']); // for remote deployment ONLY

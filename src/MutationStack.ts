@@ -8,7 +8,6 @@ export class MutationStack{
     }
 
     push(mutationList: Array<MutationRecord>){
-        console.log(mutationList);
         var mutationStackRecords = new Array<MutationRecord>();
         mutationList.forEach(mutationRecord => {
             mutationStackRecords.push(mutationRecord);

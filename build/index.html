@@ -1,6 +1,14 @@
 <html>
+  <head>
+    <style>
+      #inputarea {
+        border: 1px solid grey;
+      }
+    </style>
+  </head>
   <body>
     <h1>MutationStack Demo</h1>
+    <p>Write some text and edit it in the textbox below the undo/redo buttons. Then click the buttons (or use ctrl-z/ctrl-y) to undo/redo respectively.</p>
     <button id="undoBtn">Undo</button>
     <button id="redoBtn">Redo</button>
     <div id="inputarea" contenteditable></div>

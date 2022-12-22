@@ -1,4 +1,4 @@
-import InputHandler from "./InputHandler";
+import { ctrlPressed, setCtrlPressed, handleKeyUp } from "./input";
 import { MutationStack } from "./MutationStack";
 
 const config = {
@@ -32,7 +32,13 @@ export class MutationTracker{
     observer: MutationObserver;
     redoStack: MutationStack = new MutationStack();
     undoStack: MutationStack = new MutationStack();
-    inputHandler: InputHandler;
+    
+    // Element input handlers.
+    addListeners(){
+        console.log("TEST")
+        this.elem.addEventListener('keydown', this.handleKeyPress)
+        this.elem.addEventListener('keyup', handleKeyUp)
+    }
 
     constructor(elem: HTMLElement){
         this.elem = elem;
@@ -40,11 +46,13 @@ export class MutationTracker{
             this.redoStack.clear();
             this.undoStack.push(mutationList);
         });
-        this.reverseIt = this.reverseIt.bind(this);
+        this.reverse = this.reverse.bind(this);
         this.undo = this.undo.bind(this);
         this.redo = this.redo.bind(this);
-
-        this.inputHandler = new InputHandler(this);
+        this.addListeners = this.addListeners.bind(this);
+        this.handleCtrlCombo = this.handleCtrlCombo.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+        this.addListeners();
     }
 
     // Start observing for changes via mutation observer API.
@@ -58,7 +66,7 @@ export class MutationTracker{
     }
 
     // Reverse a change passed from the undo or redo stacks.
-    async reverseIt(undo: boolean){
+    async reverse(undo: boolean){
         this.stop(); // Stop tracking fresh mutations while redoing.
 
         await new Promise((resolve) => {
@@ -76,7 +84,7 @@ export class MutationTracker{
     // Pop and reverse the last change from the redo stack.
     redo(){
         if(this.redoStack.length()>0)
-            this.reverseIt(false);
+            this.reverse(false);
         else
             throw new Error("Nothing to redo.");
     }
@@ -84,10 +92,36 @@ export class MutationTracker{
     // Pop and reverse the last change from the undo stack.
     undo(){
         if(this.undoStack.length()>0)
-            this.reverseIt(true);
+            this.reverse(true);
         else
             throw new Error("Nothing to undo.");
     }
+
+    // Handle control-y redo and control-z undo actions.
+    handleCtrlCombo(event: KeyboardEvent){
+        switch(event.code){
+            case 'KeyY':
+                event.preventDefault();
+                this.redo();
+                break;
+            case 'KeyZ':
+                event.preventDefault();
+                this.undo();
+                break;
+        }
+    };
+
+    handleKeyPress(event: KeyboardEvent){
+        if(ctrlPressed){
+            this.handleCtrlCombo(event);
+        } else if(event.ctrlKey){
+            setCtrlPressed(true);
+        }
+    }
+
+
+
+
 }
 
 export default MutationTracker;
